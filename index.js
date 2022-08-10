@@ -241,7 +241,7 @@ router.delete('/products/:id', (req, res) => {
     `;
     db.query(strQry, [req.params.id], (err, data, fields) => {
         if (err) throw err;
-        res.send(`${data.affectedRows} row was affected`);
+        res.send(`${data.affectedRows} row was afected`);
     })
 });
 
