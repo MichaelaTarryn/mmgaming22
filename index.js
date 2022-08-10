@@ -3,13 +3,14 @@ const express = require('express');
 const db = require('./config/dbconn');
 const router = require('./routes/routes');
 const bodyParser = require('body-parser');
-const jwt =require ("jsonwebtoken")
+const jwt =require("jsonwebtoken")
 const path = require('path');
 const {
     genSalt,
     hash,
     compare
 } = require('bcrypt');
+const middleware= require('./middleware/auth')
 // express app
 const app = express();
 // Router
@@ -55,12 +56,12 @@ app.post('/register', bodyParser.json(), async (req, res) => {
             // Query
             const strQry =
                 `
-    INSERT INTO users(fullName, phoneNumber, joinDate, email, password)
-    VALUES(?, ?, ?, ?, ?);
+    INSERT INTO users(fullName, phoneNumber, joinDate, email, password,userRole)
+    VALUES(?, ?, ?, ?, ?,?);
     `;
             //
             db.query(strQry,
-                [bd.fullName, bd.phoneNumber, bd.joinDate, bd.email, bd.password],
+                [bd.fullName, bd.phoneNumber, bd.joinDate, bd.email, bd.password,bd.userRole],
                 (err, results) => {
                     if (err) throw err;
                     res.send(`you have registered successfully: ${results.affectedRows}`)
@@ -72,6 +73,16 @@ app.post('/register', bodyParser.json(), async (req, res) => {
         }
         )
     })
+
+    //dumb text
+    // {
+    //   "fullName" : "eee",
+    //   "phoneNumber" : "222222",
+    //   "userRole" : "Admin",
+    //   "email" : "eeees@gmail.com",
+    //   "joinDate":"2022-11-11",
+    //   "password" : "dog"
+    // }
 
     //view all mysql data from users in localhost 
     router.get('/users',(req,res)=>{
@@ -89,7 +100,7 @@ app.post('/register', bodyParser.json(), async (req, res) => {
         })
     })
 
-    app.post("/login", bodyParser.json(), (req, res) => {
+    router.post("/login", bodyParser.json(), (req, res) => {
         try {
           // Get email and password
           const {
@@ -175,31 +186,6 @@ app.post('/register', bodyParser.json(), async (req, res) => {
 
     //token
 
-    //frontend 
-    login: async (context, payload) => {
-        const {
-          email,
-          password
-        } = payload;
-        fetch("http://localhost:3000/login", {
-            method: "POST",
-            body: JSON.stringify({
-              email: email,
-              password: password
-            }),
-            headers: {
-              "Content-type": "application/json; charset=UTF-8",
-              "x-auth-token": ""
-            },
-          })
-          .then((response) => response.json())
-          .then((data) => {
-            alert(data.msg)
-            let userData = data
-            context.commit("setUser", userData);
-          })
-      }
-
       //verify
       router.get ('/verify',(req,res)=>{
         const token = req.header("x-auth-token"
@@ -217,13 +203,13 @@ app.post('/register', bodyParser.json(), async (req, res) => {
         });
       });
 
-      const middleware = require("./middleware/auth");
 
       router.get("/",middleware,(req,res)=>{
         try{
         let sql = "SELECT * FROM users";
-        con.query(sql, (err , result )=>{
+        db.query(sql, (err , result )=>{
             if (err)throw err;
+            res.send(req.user)
             res.send(result);
         });
     } catch (error){
@@ -231,19 +217,88 @@ app.post('/register', bodyParser.json(), async (req, res) => {
     }
       });
 
-      // Delete product
-router.delete('/products/:id', (req, res) => {
+      // admin delete a product
+router.delete('/products/:id',middleware,  async(req, res) => {
     // Query
     const strQry =
         `
     DELETE FROM products 
-    WHERE id = ?;
+    WHERE productid = ?;
     `;
     db.query(strQry, [req.params.id], (err, data, fields) => {
         if (err) throw err;
-        res.send(`${data.affectedRows} row was affected`);
+        res.send(`${data.affectedRows} successully deleted a product`);
     })
 });
+
+//admin added a product
+
+router.post('/products',middleware,  bodyParser.json(), async (req, res) => {
+  const bd = req.body;
+  // Query
+  const strQry =
+  `
+INSERT INTO products(title, genre, description, img, price,quantity,createdby)
+VALUES(?, ?, ?, ?, ?,?,?);
+
+`;
+  db.query(strQry,[bd.title, bd.genre, bd.description, bd.img, bd.price,bd.quantity,bd.createdby],(err,data) => {
+    if (err) throw err;
+    res.send(`${data.affectedRows}Successfully added a product`);
+  })
+});
+
+//update a product
+router.put('/products/:id', middleware, bodyParser.json(), async (req, res) => {
+  const {
+    title,
+    genre,
+    description,
+    img,
+    price,
+    quantity
+  } = req.body
+
+  let sql = `UPDATE products SET ? WHERE productid = ${req.params.id} `
+
+  const product = {
+    title, genre, description, img, price, quantity
+  }
+
+  db.query(sql, product, (err, result) => {
+    if (err) throw Error
+    res.send(result)
+  })
+ 
+});
+
+//dumb text to add
+// {
+//   "title":"rainbowsiegexbox",
+//   "category":"Shooter",
+//   "description":"Rainbow Six: Siege is an intense, new approach to the first-person multiplayer shooter experience. Choose from a variety of unique elite Operators and master their abilities as you lead your team through tense, thrilling, and destructive team-based combat.",
+//   "img":"https://i.postimg.cc/fRf3Y40M/rainbowsiegexbox.jpg",
+//   "price":"299.00",
+//   "quantity":"5"
+// }
+
+ //view all mysql data from products in localhost 
+ router.get('/products',(req,res)=>{
+  const strQry =
+      `
+  SELECT *
+  FROM products;
+  `;
+  db.query(strQry, (err, results) => {
+      if (err) throw err;
+      res.json({
+          status: 200,
+          results: results
+      })
+  })
+})
+
+//USERS FORGOT PASSWORD
 
 router.post("/forgot-password", (req, res) => {
     try {
