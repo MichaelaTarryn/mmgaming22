@@ -10,7 +10,8 @@ const {
   hash,
   compare
 } = require('bcrypt');
-const middleware = require('./middleware/auth')
+const middleware = require('./middleware/auth');
+const { post } = require('./routes/routes');
 // express app
 const app = express();
 // Router
@@ -32,7 +33,7 @@ app.listen(port, () => {
 })
 
 // User registration
-app.post('/register', bodyParser.json(), async (req, res) => {
+app.post('/users', bodyParser.json(), async (req, res) => {
   const bd = req.body;
   if (bd.userRole === "" || bd.userRole === null) {
     bd.userRole = "user";
@@ -141,8 +142,41 @@ router.get('/users', (req, res) => {
     })
   })
 })
-
-router.post("/login", bodyParser.json(), (req, res) => {
+//view all mysql data from users  by id in localhost 
+router.get('/users/:id', (req, res) => {
+  const strQry =
+    `
+        SELECT *
+        FROM users
+        
+        WHERE id = ${req.params.id};
+        `;
+  db.query(strQry, (err, results) => {
+    if (err) throw err;
+    res.json({
+      status: 200,
+      results: results
+    })
+  })
+})
+//view all mysql data from products  by id in localhost 
+router.get('/products/:id', (req, res) => {
+  const strQry =
+    `
+        SELECT *
+        FROM products
+        
+        WHERE productid = ${req.params.id};
+        `;
+  db.query(strQry, (err, results) => {
+    if (err) throw err;
+    res.json({
+      status: 200,
+      results: results
+    })
+  })
+})
+router.patch("/login", bodyParser.json(), (req, res) => {
   try {
     // Get email and password
     const {
@@ -347,6 +381,160 @@ router.get('/products', (req, res) => {
 
 //add to cart
 
+// cart functionalty
+// ===========================================================================================
+// get cart items from user
+router.get("/users/:id/cart", middleware, (req, res) => {
+  try {
+    const strQuery = "SELECT cart FROM users WHERE id = ?";
+    db.query(strQuery, [req.user.id], (err, results) => {
+      if (err) throw err;
+        (function Check(a, b) {
+          a = parseInt(req.user.id);
+          b = parseInt(req.params.id);
+          if (a === b) {
+            // res.json({
+            //   status: 200,
+            //   result: results,
+            // });
+            res.send(results[0].cart);
+          } else {
+            res.json({
+              msg: "Please Login",
+            });
+          }
+        })();
+    })
+  } catch (error) {
+    throw error;
+  }
+});
+
+// add cart items
+router.post("/users/:id/cart", middleware, bodyParser.json(), (req, res) => {
+  try {
+    let {
+      id
+    } = req.body;
+    const qCart = ` SELECT cart
+    FROM users
+    WHERE id = ?;
+    `;
+    db.query(qCart, req.user.id, (err, results) => {
+      if (err) throw err;
+      let cart;
+      if (results.length > 0) {
+        if (results[0].cart === null) {
+          cart = [];
+        } else {
+          cart = JSON.parse(results[0].cart);
+        }
+      }
+      const strProd = `
+    SELECT *
+    FROM products
+    WHERE productid = ${id};
+    `;
+      db.query(strProd, async (err, results) => {
+        if (err) throw err;
+
+        let product = 
+        {
+        productid: results[0].productid,
+        title: results[0].title,
+        genre: results[0].genre,
+        description: results[0].desrciption,
+        price: results[0].price,
+        img: results[0].img,
+        quantity:results[0].quantity,
+        creatdby: results[0].createdby,
+        };
+
+        cart.push(product);
+        // res.send(cart)
+        const strQuery = `UPDATE users
+    SET cart = ?
+    WHERE (id = ${req.user.id})`;
+        db.query(strQuery, /*req.user.id */ JSON.stringify(cart), (err) => {
+          if (err) throw err;
+          res.json({
+            results,
+            msg: "Product added to Cart",
+          });
+        });
+      });
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
+//dumb text to test out
+  // {
+  
+  //   "id":32
+  // }
+
+});
+
+// delete products from cart
+router.delete("/users/:id/cart", middleware, (req, res) => {
+  const dCart = `SELECT cart 
+  FROM users
+  WHERE id = ?`
+
+  db.query(dCart, req.user.id, (err, results) => {
+    if (err) throw err
+    let cart
+    if (results[0].cart === null) {
+      cart = [];
+    } else {
+      cart = JSON.parse(results[0].cart);
+    }
+
+    for (let i = 0; i < cart.length; i++) {
+      let index = cart.indexOf(cart[i].id)
+      cart.splice(index, 1)
+
+    }
+  })
+  const strQry = `
+  UPDATE users
+    SET cart = null
+    WHERE (id = ?);
+    `;
+  db.query(strQry, [req.user.id], (err, data, fields) => {
+    if (err) throw err;
+    res.json({
+      msg: "Item Deleted",
+    });
+  });
+});
+
+router.delete("/users/:id/cart", middleware,(req, res) => {
+  const dCart = `SELECT cart 
+  FROM users
+  WHERE id = ?`
+
+  db.query(dCart, req.user.id, (err, results) => {
+    // let cart = 
+  })
+  const strQry = `
+  UPDATE users
+    SET cart = null
+    WHERE (id = ?);
+    `;
+  db.query(strQry, [req.user.id], (err, data, fields) => {
+    if (err) throw err;
+    res.json({
+      msg: "Item Deleted",
+    });
+  });
+})
+
+//update to cart 
+
+
+
+//checkout 
 
 
 
