@@ -476,38 +476,38 @@ router.post("/users/:id/cart", middleware, bodyParser.json(), (req, res) => {
 });
 
 // delete products from cart
-router.delete("/users/:id/cart", middleware, (req, res) => {
-  const dCart = `SELECT cart 
-  FROM users
-  WHERE id = ?`
+// router.delete("/users/:id/cart", middleware, (req, res) => {
+//   const dCart = `SELECT cart 
+//   FROM users
+//   WHERE id = ?`
 
-  db.query(dCart, req.user.id, (err, results) => {
-    if (err) throw err
-    let cart
-    if (results[0].cart === null) {
-      cart = [];
-    } else {
-      cart = JSON.parse(results[0].cart);
-    }
+//   db.query(dCart, req.user.id, (err, results) => {
+//     if (err) throw err
+//     let cart
+//     if (results[0].cart === null) {
+//       cart = [];
+//     } else {
+//       cart = JSON.parse(results[0].cart);
+//     }
 
-    for (let i = 0; i < cart.length; i++) {
-      let index = cart.indexOf(cart[i].id)
-      cart.splice(index, 1)
+//     for (let i = 0; i < cart.length; i++) {
+//       let index = cart.indexOf(cart[i].id)
+//       cart.splice(index, 1)
 
-    }
-  })
-  const strQry = `
-  UPDATE users
-    SET cart = null
-    WHERE (id = ?);
-    `;
-  db.query(strQry, [req.user.id], (err, data, fields) => {
-    if (err) throw err;
-    res.json({
-      msg: "Item Deleted",
-    });
-  });
-});
+//     }
+//   })
+//   const strQry = `
+//   UPDATE users
+//     SET cart = null
+//     WHERE (id = ?);
+//     `;
+//   db.query(strQry, [req.user.id], (err, data, fields) => {
+//     if (err) throw err;
+//     res.json({
+//       msg: "Item Deleted",
+//     });
+//   });
+// });
 
 router.delete("/users/:id/cart", middleware,(req, res) => {
   const dCart = `SELECT cart 
@@ -530,12 +530,34 @@ router.delete("/users/:id/cart", middleware,(req, res) => {
   });
 })
 
+//delete single product in cart
+
+router.delete("/users/:id/cart/:productid",middleware,(req,res)=>{
+  const dCart = `SELECT cart 
+  FROM users
+  WHERE id = ?`
+
+  db.query(dCart,req.user.id,(err,results)=>{
+if(err) throw err
+  let var1 = JSON.parse(results[0].cart).filter((x)=>{return x.productid != req.params.productid;
+  })
+  const strQry = `
+  UPDATE users
+  SET cart = ?
+  WHERE (id= ?) ;
+  `;
+  db.query(strQry, [JSON.stringify(var1),req.user.id], (err, data, fields) => {
+    if (err) throw err;
+    res.json({
+      msg: "Item  single Deleted",
+    });
+  });
+})
+})
+
+
+
 //update to cart 
-
-
-
-//checkout 
-
 
 
 //USERS FORGOT PASSWORD
