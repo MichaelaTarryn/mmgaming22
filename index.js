@@ -470,7 +470,7 @@ router.post("/users/:id/cart", middleware, bodyParser.json(), (req, res) => {
 //dumb text to test out
   // {
   
-  //   "id":32
+  //   "id":18
   // }
 
 });
