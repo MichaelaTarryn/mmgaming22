@@ -75,7 +75,9 @@ app.post('/users', bodyParser.json(), async (req, res) => {
         [bd.fullName, bd.phoneNumber, bd.joinDate, bd.email, bd.password, bd.userRole],
         (err, results) => {
           if (err) throw err;
-          res.send(`you have registered successfully: ${results.affectedRows}`)
+          res.json({
+            msg:"successfully register !"
+          })
           // res.send(window.location.href="login.html")
           // res.sendFile(__dirname + "/login.html")
           ;
