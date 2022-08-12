@@ -9,8 +9,8 @@ const connection = createPool({
     multipleStatements: true
 });
 
-connection.connect( (err)=> {
-    if(err) throw err 
-})
+// connection.connect( (err)=> {
+//     if(err) throw err 
+// })
 
 module.exports = connection;
