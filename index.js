@@ -636,7 +636,7 @@ router.post("/forgot-password", (req, res) => {
   }
 
   res.status(401).json({
-    msg: "You forgot your password"
+    msg: "You forgot your paseesword"
   })
 });
 module.exports = {
