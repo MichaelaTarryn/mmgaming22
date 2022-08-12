@@ -15,8 +15,17 @@ const { post } = require('./routes/routes');
 // express app
 const app = express();
 // Router
-
 const port = parseInt(process.env.PORT) || 4000;
+
+// Set header
+app.use((req, res, next)=>{
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  next();
+});
+
 app.use(router, express.json(), express.urlencoded({
   extended: true
 }));
@@ -31,14 +40,6 @@ app.use(express.static(staticPath));
 app.listen(port, () => {
   console.log(`http://localhost:${port}`);
 })
-// Set header
-app.use((req, res, next)=>{
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "*");
-  res.setHeader("Access-Control-Allow-Headers", "*");
-  next();
-});
 
 // User registration
 app.post('/users', bodyParser.json(), async (req, res) => {
@@ -638,3 +639,8 @@ router.post("/forgot-password", (req, res) => {
     msg: "You forgot your password"
   })
 });
+module.exports = {
+  devServer: {
+      Proxy: '*'
+  }
+}
