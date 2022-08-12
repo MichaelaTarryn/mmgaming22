@@ -61,6 +61,7 @@ app.post('/users', bodyParser.json(), async (req, res) => {
       // Encrypting a password
       // Default genSalt() is 10`
       bd.password = await hash(bd.password, 10);
+      bd.joinDate = `${new Date().toISOString().slice(0, 10)}`;
       // bd.id = await hash(bd.id, 10);
 
       // Query
@@ -636,7 +637,7 @@ router.post("/forgot-password", (req, res) => {
   }
 
   res.status(401).json({
-    msg: "You forgot your paseeeeeesword"
+    msg: "You forgot your paseesword"
   })
 });
 module.exports = {
