@@ -188,7 +188,7 @@ router.get('/products/:id', (req, res) => {
     })
   })
 })
-router.patch("/login", bodyParser.json(), (req, res) => {
+router.post("/login", bodyParser.json(), (req, res) => {
   try {
     // Get email and password
     const {
@@ -207,7 +207,7 @@ router.patch("/login", bodyParser.json(), (req, res) => {
           msg: "Email not found, Please Register"
         });
       } else {
-        console.log(results)
+        // console.log(results)
         const ismatch = await compare(password, results[0].password);
         // res.json({
         //   results: await compare(password, results[0].password),
