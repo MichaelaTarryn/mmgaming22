@@ -191,10 +191,7 @@ router.get('/products/:id', (req, res) => {
 router.post("/login", bodyParser.json(), (req, res) => {
   try {
     // Get email and password
-    const {
-      email,
-      password
-    } = req.body;
+    const {email, password } = req.body;
     const strQry = `
               SELECT *
               FROM users 
@@ -202,7 +199,8 @@ router.post("/login", bodyParser.json(), (req, res) => {
               `;
     db.query(strQry, async (err, results) => {
       if (err) throw err;
-      if (results.length === 0) {
+      console.log(results);
+      if (results.length < 1) {
         res.json({
           msg: "Email not found, Please Register"
         });
