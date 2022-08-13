@@ -5,6 +5,7 @@ const router = require('./routes/routes');
 const bodyParser = require('body-parser');
 const jwt = require("jsonwebtoken")
 const path = require('path');
+const cors = require('cors');
 const {
   genSalt,
   hash,
@@ -26,7 +27,9 @@ app.use((req, res, next)=>{
   next();
 });
 
-app.use(router, express.json(), express.urlencoded({
+app.use(router, express.json(), cors({
+  origin: 'http:/localhost:8080'
+}), express.urlencoded({
   extended: true
 }));
 
