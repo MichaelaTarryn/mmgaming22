@@ -191,8 +191,9 @@ router.get('/products/:id', (req, res) => {
     })
   })
 })
-router.post("/login", bodyParser.json(), (req, res) => {
-
+router.post("/login",  bodyParser.json(), (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
     // Get email and password
     const {email, password } = req.body;
     const strQry = `
