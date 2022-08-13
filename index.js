@@ -192,7 +192,7 @@ router.get('/products/:id', (req, res) => {
   })
 })
 router.post("/login", bodyParser.json(), (req, res) => {
-  try {
+
     // Get email and password
     const {email, password } = req.body;
     const strQry = `
@@ -202,13 +202,12 @@ router.post("/login", bodyParser.json(), (req, res) => {
               `;
     db.query(strQry, async (err, results) => {
       if (err) throw err;
-      console.log(results);
-      if (results.length < 1) {
-        res.json({
+      if (!results.length) {
+        res.status(401).json({
           msg: "Email not found, Please Register"
         });
       } else {
-        // console.log(results)
+        console.log(results)
         const ismatch = await compare(password, results[0].password);
         // res.json({
         //   results: await compare(password, results[0].password),
@@ -216,7 +215,7 @@ router.post("/login", bodyParser.json(), (req, res) => {
         //   // : "You provided a wrong password",
         // });
         // res.send(results),
-        if (ismatch === true) {
+        if (ismatch) {
           const payload = {
             user: {
               id: results[0].id,
@@ -253,9 +252,6 @@ router.post("/login", bodyParser.json(), (req, res) => {
         }
       }
     });
-  } catch (e) {
-    console.log(`From login: ${e.message}`);
-  }
 });
 //view all mysql data from users in localhost from login 
 router.get('/login', (req, res) => {
