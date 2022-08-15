@@ -347,17 +347,19 @@ router.put('/products/:id', middleware, bodyParser.json(), async (req, res) => {
     img,
     price,
     quantity
-  } = req.body
+    } = req.body
 
   let sql = `UPDATE products SET ? WHERE productid = ${req.params.id} `
 
+  let userid = req.user.id
   const product = {
     title,
     genre,
     description,
     img,
     price,
-    quantity
+    quantity,
+    userid
   }
 
   db.query(sql, product, (err, result) => {
@@ -645,6 +647,9 @@ router.post("/forgot-password", (req, res) => {
     msg: "You forgot your paseesword"
   })
 });
+
+
+
 module.exports = {
   devServer: {
       Proxy: '*'
