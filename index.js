@@ -317,7 +317,7 @@ router.delete('/products/:id', middleware, async (req, res) => {
     `;
   db.query(strQry, [req.params.id], (err, data, fields) => {
     if (err) throw err;
-    res.send(`${data.affectedRows} successully deleted a product`);
+    res.json(`${data.affectedRows} successully deleted a product`);
   })
 });
 
@@ -334,7 +334,12 @@ VALUES(?, ?, ?, ?, ?,?,?);
 `;
   db.query(strQry, [bd.title, bd.genre, bd.description, bd.img, bd.price, bd.quantity, bd.createdby], (err, data) => {
     if (err) throw err;
-    res.send(`${data.affectedRows}Successfully added a product`);
+    // res.send(`${data.affectedRows}Successfully added a product`);
+    res.json({
+      status: 200,
+      results: results,
+      msg:'success'
+    })
   })
 });
 
