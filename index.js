@@ -27,6 +27,7 @@ app.use((req, res, next)=>{
   res.set({
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "*",
+    "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Methods": "*",
   });
   next();
@@ -332,11 +333,11 @@ router.post('/products', middleware, bodyParser.json(), async (req, res) => {
   // Query
   const strQry =
     `
-INSERT INTO products(title, genre, description, img, price,quantity,createdby)
+INSERT INTO products(title, genre, description, img, price,quantity,userId)
 VALUES(?, ?, ?, ?, ?,?,?);
 
 `;
-  db.query(strQry, [bd.title, bd.genre, bd.description, bd.img, bd.price, bd.quantity, bd.createdby], (err, data) => {
+  db.query(strQry, [bd.title, bd.genre, bd.description, bd.img, bd.price, bd.quantity, bd.userId], (err, data) => {
     if (err) throw err;
     // res.send(`${data.affectedRows}Successfully added a product`);
     res.json({
@@ -360,7 +361,7 @@ router.put('/products/:id', middleware, bodyParser.json(), async (req, res) => {
 
   let sql = `UPDATE products SET ? WHERE productid = ${req.params.id} `
 
-  let userid = req.user.id
+  let userId = req.user.id
   const product = {
     title,
     genre,
@@ -368,7 +369,7 @@ router.put('/products/:id', middleware, bodyParser.json(), async (req, res) => {
     img,
     price,
     quantity,
-    userid
+    userId
   }
 
   db.query(sql, product, (err, result) => {
@@ -476,7 +477,7 @@ router.post("/users/:id/cart", middleware, bodyParser.json(), (req, res) => {
         quantity:results[0].quantity,
         userId: results[0].userId,
         };
-        
+
 
         cart.push(product);
         // res.send(cart)
