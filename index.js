@@ -337,7 +337,7 @@ INSERT INTO products(title, genre, description, img, price,quantity,userId)
 VALUES(?, ?, ?, ?, ?,?,?);
 
 `;
-  db.query(strQry, [bd.title, bd.genre, bd.description, bd.img, bd.price, bd.quantity, bd.userId], (err, data) => {
+  db.query(strQry, [bd.title, bd.genre, bd.description, bd.img, bd.price, bd.quantity,req.user.id], (err, data) => {
     if (err) throw err;
     // res.send(`${data.affectedRows}Successfully added a product`);
     res.json({
@@ -356,11 +356,10 @@ router.put('/products/:id', middleware, bodyParser.json(), async (req, res) => {
     description,
     img,
     price,
-    quantity
+    quantity,
     } = req.body
 
   let sql = `UPDATE products SET ? WHERE productid = ${req.params.id} `
-
   let userId = req.user.id
   const product = {
     title,
@@ -371,6 +370,7 @@ router.put('/products/:id', middleware, bodyParser.json(), async (req, res) => {
     quantity,
     userId
   }
+ 
 
   db.query(sql, product, (err, result) => {
     if (err) throw Error
