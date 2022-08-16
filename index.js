@@ -33,7 +33,7 @@ app.use((req, res, next)=>{
 });
 
 app.use(router, express.json(), cors({
-  origin: 'http:/localhost:8080'
+  origin: 'http:/localhost:8081'
 }), express.urlencoded({
   extended: true
 }));
@@ -446,7 +446,8 @@ router.post("/users/:id/cart", middleware, bodyParser.json(), (req, res) => {
     FROM users
     WHERE id = ?;
     `;
-    db.query(qCart, req.user.id, (err, results) => {
+    
+    db.query(qCart, [req.params.id], (err, results) => {
       if (err) throw err;
       let cart;
       if (results.length > 0) {
@@ -473,8 +474,9 @@ router.post("/users/:id/cart", middleware, bodyParser.json(), (req, res) => {
         price: results[0].price,
         img: results[0].img,
         quantity:results[0].quantity,
-        createdby: results[0].createdby,
+        userId: results[0].userId,
         };
+        
 
         cart.push(product);
         // res.send(cart)
@@ -484,6 +486,7 @@ router.post("/users/:id/cart", middleware, bodyParser.json(), (req, res) => {
         db.query(strQuery, JSON.stringify(cart), (err) => {
           if (err) throw err;
           res.json({
+            test: id,
             results,
             msg: "Product added to Cart",
           });
