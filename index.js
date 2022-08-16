@@ -317,7 +317,11 @@ router.delete('/products/:id', middleware, async (req, res) => {
     `;
   db.query(strQry, [req.params.id], (err, data, fields) => {
     if (err) throw err;
-    res.json(`${data.affectedRows} successully deleted a product`);
+    res.json({
+      status: 200,
+      results: results,
+      msg:'successully  delete'
+    })
   })
 });
 
@@ -338,7 +342,7 @@ VALUES(?, ?, ?, ?, ?,?,?);
     res.json({
       status: 200,
       results: results,
-      msg:'success'
+      msg:'successully'
     })
   })
 });
@@ -530,6 +534,30 @@ router.post("/users/:id/cart", middleware, bodyParser.json(), (req, res) => {
 //     });
 //   });
 // });
+
+// get cart items from user
+router.get("/users/:id/cart", middleware, (req, res) => {
+  try {
+    const strQuery = "SELECT cart FROM users WHERE id = ?";
+    db.query(strQuery, [req.user.id], (err, results) => {
+      if (err) throw err;
+      (function Check(a, b) {
+        a = parseInt(req.user.id);
+        b = parseInt(req.params.id);
+        if (a === b) {
+
+          res.send(results[0].cart);
+        } else {
+          res.json({
+            msg: "Please Login",
+          });
+        }
+      })();
+    });
+  } catch (error) {
+    throw error;
+  }
+});
 
 router.delete("/users/:id/cart", middleware,(req, res) => {
   const dCart = `SELECT cart 
