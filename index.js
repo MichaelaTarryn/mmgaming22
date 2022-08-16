@@ -473,7 +473,7 @@ router.post("/users/:id/cart", middleware, bodyParser.json(), (req, res) => {
         price: results[0].price,
         img: results[0].img,
         quantity:results[0].quantity,
-        creatdby: results[0].createdby,
+        createdby: results[0].createdby,
         };
 
         cart.push(product);
@@ -481,7 +481,7 @@ router.post("/users/:id/cart", middleware, bodyParser.json(), (req, res) => {
         const strQuery = `UPDATE users
     SET cart = ?
     WHERE (id = ${req.user.id})`;
-        db.query(strQuery, /*req.user.id */ JSON.stringify(cart), (err) => {
+        db.query(strQuery, JSON.stringify(cart), (err) => {
           if (err) throw err;
           res.json({
             results,
